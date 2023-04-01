@@ -60,7 +60,7 @@ module N_accumulator_tb;
         
         
                 
-        repeat(1000) begin
+        repeat(2000) begin
         @(posedge clk) #1
         s_data <= s_data_r.num; rstn <= 1; s_valid <=  s_data_r.num_1; m_ready <=  s_data_r.num_2;
         s_data_r.randomize();

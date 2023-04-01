@@ -60,44 +60,12 @@ module N_accumulator_tb;
         
         
                 
-        repeat(100) begin
+        repeat(1000) begin
         @(posedge clk) #1
         s_data <= s_data_r.num; rstn <= 1; s_valid <=  s_data_r.num_1; m_ready <=  s_data_r.num_2;
         s_data_r.randomize();
         end
-        
-        repeat(25) begin
-        @(posedge clk) #1
-        s_data <= s_data_r.num; rstn <= 1; s_valid <= 1; m_ready <= 1;
-        s_data_r.randomize();
-        end
-        
-        repeat(25) begin
-        @(posedge clk) #1
-        s_data <= s_data_r.num; rstn <= 0; s_valid <= 1; m_ready <= 1;
-        s_data_r.randomize();
-        end
-        
-        repeat(25) begin
-        @(posedge clk) #1
-        s_data <= s_data_r.num; rstn <= 1; s_valid <= 1; m_ready <= 1;
-        s_data_r.randomize();
-        end
-        
-         repeat(25) begin
-        @(posedge clk) #1
-        s_data <= s_data_r.num; rstn <= 1; s_valid <= 0; m_ready <= 1;
-        s_data_r.randomize();
-        end
-        
-
-        
-        repeat(25) begin
-        @(posedge clk) #1
-        s_data <= s_data_r.num; rstn <= 1; s_valid <= 1; m_ready <= 0;
-        s_data_r.randomize();
-        end
-        
+ 
         @(posedge clk)   s_data<= 4; rstn<= 1;s_valid<=0;m_ready<=1;
     end
     
@@ -114,7 +82,9 @@ module N_accumulator_tb;
             end
         else
             begin
-            if (m_valid  && m_ready)
+            if (count_1 == N)
+                begin
+                if ( m_ready)
                 begin
                 count_1 = 0;
                 m_data_1[0] = sum_1%10;  
@@ -124,32 +94,25 @@ module N_accumulator_tb;
                     sum_1 = s_data;
                     end
                 else
-                    begin
+                    begin 
                     sum_1 = 0;
                     end
-//                $display("OK: m_data:%d%d m_data_1:%d%d", m_data[1], m_data[0], m_data_1[1], m_data_1[0]);
+                end
                 end
             
             else
                 begin
                 if(s_valid && s_ready && rstn )begin
-                
-                if (count_1 <N)
-                    begin
+               
                     count_1 = count_1 + 1;
                     sum_1 = sum_1+ s_data;
-                    end
-//                if (count_1 == N-1)
-//                    begin
-//                    sum_1 = 0;
-//                    count_1 = 0;
-//                    end
+
+                end
                 end
             end
-        end
         
         
-        if (m_valid  && m_ready && rstn)
+        if (count_1 == N  && m_ready)
         begin
         assert ((m_data_1[0]==m_data[0]) && (m_data_1[1]==m_data[1])  ) begin
         $display("OK: m_data:%d%d m_data_1:%d%d", m_data[1], m_data[0], m_data_1[1], m_data_1[0]);

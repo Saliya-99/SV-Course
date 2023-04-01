@@ -35,14 +35,12 @@ module N_accumulator #(Width= 3, N=10)(
 
     reg [Width-1:0] data_reg;
 
-   
-//    assign  m_data[0] = temp_data%10;  
-//    assign  m_data[1] = temp_data/10;
+
     assign s_ready =!((m_valid)&&(!m_ready));
-//    assign temp_data = temp_data + data_reg;
     
+
     always_comb unique case (state)
-    RX: next_state = s_valid && count==N-1 ? TX : RX;
+    RX: next_state =  s_valid && count==N-1 ? TX : RX;
     TX: next_state = m_ready               ? RX : TX;
     endcase
     
@@ -53,25 +51,40 @@ module N_accumulator #(Width= 3, N=10)(
     if (!rstn)
         begin 
         temp_data <= 0;
-        m_valid <= 0;
+
         count <= 0;
         m_data<= 0;
         end
     else 
         unique case (state)
-        RX: if(s_valid && s_ready)begin
-                m_valid <= 0;
- 
+        RX: begin
+        m_valid <= 0; 
+        if(s_valid && s_ready)begin
+
+                
                 temp_data <= temp_data + s_data;
                 count <= count + 1'd1;
             end
-        TX: if (m_ready) begin
+        end
+        TX: begin
+            m_valid <= 1;
+            if (m_ready) begin
             m_data[0] <= temp_data%10;  
             m_data[1] <= temp_data/10;
-            m_valid <= 1;
-            temp_data <= temp_data + (s_data-temp_data);//avoid missing of one value in the axi input stream during output enabling and reset sum to 0
+            
+            if (s_valid)
+                begin
+                temp_data <= temp_data + (s_data-temp_data);//avoid missing of one value in the axi input stream during output enabling and reset sum to 0
+                end
+            else
+                begin
+                temp_data<= 0;
+                end
+     
             count <= 0;
         end
+        end
+
         endcase
 
             

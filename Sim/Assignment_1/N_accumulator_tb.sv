@@ -21,6 +21,10 @@
 
 class Random_Num #(WIDTH=3);
 rand bit signed [WIDTH-1:0] num;
+rand bit signed num_1;
+rand bit signed num_2;
+rand bit signed num_3;
+
 endclass
     
 module N_accumulator_tb;
@@ -53,6 +57,15 @@ module N_accumulator_tb;
     initial 
     begin   
         Random_Num #(.WIDTH(Width)) s_data_r = new();
+        
+        
+                
+        repeat(100) begin
+        @(posedge clk) #1
+        s_data <= s_data_r.num; rstn <= 1; s_valid <=  s_data_r.num_1; m_ready <=  s_data_r.num_2;
+        s_data_r.randomize();
+        end
+        
         repeat(25) begin
         @(posedge clk) #1
         s_data <= s_data_r.num; rstn <= 1; s_valid <= 1; m_ready <= 1;
@@ -77,13 +90,7 @@ module N_accumulator_tb;
         s_data_r.randomize();
         end
         
-        
-        repeat(25) begin
-        @(posedge clk) #1
-        s_data <= s_data_r.num; rstn <= 1; s_valid <= 1; m_ready <= 1;
-        s_data_r.randomize();
-        end
-        
+
         
         repeat(25) begin
         @(posedge clk) #1
@@ -116,18 +123,27 @@ module N_accumulator_tb;
                     begin
                     sum_1 = s_data;
                     end
+                else
+                    begin
+                    sum_1 = 0;
+                    end
 //                $display("OK: m_data:%d%d m_data_1:%d%d", m_data[1], m_data[0], m_data_1[1], m_data_1[0]);
                 end
             
             else
                 begin
-                if(s_valid && s_ready && rstn)begin
+                if(s_valid && s_ready && rstn )begin
                 
                 if (count_1 <N)
                     begin
                     count_1 = count_1 + 1;
                     sum_1 = sum_1+ s_data;
                     end
+//                if (count_1 == N-1)
+//                    begin
+//                    sum_1 = 0;
+//                    count_1 = 0;
+//                    end
                 end
             end
         end
